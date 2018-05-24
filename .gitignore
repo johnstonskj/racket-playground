@@ -1,3 +1,5 @@
 *.rkt~
 *.rkt#*
 .#*.rkt
+
+jupyter/.ipynb_checkpoints/*
