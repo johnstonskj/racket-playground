@@ -1,35 +1,127 @@
 #lang scribble/manual
 
-@(require
+@(require racket/sandbox
+          scribble/eval
           (for-label "../private/simple-bitmap.rkt"
                      racket
                      racket/contract
                      math/array))
+
+@(define bitmap-eval (make-base-eval
+                        '(require "private/simple-bitmap.rkt")
+                        ))
 
 @title[#:tag "example" #:version "0.1"]{simple-bitmap}
 @author{Simon Johnston}
 
 @defmodule[simple-bitmap #:use-sources ("private/simple-bitmap.rkt")]
 
-A Sample package and module implementing a basic data structure.
+A Sample package and module implementing a basic data structure and an example
+procedure.
 
-@;{==================================================================================================}
-@section[#:tag "bitmap:types"]{Types}
+@examples[ #:eval bitmap-eval
+  (define bm (make-bitmap 16 8))
+  (bitmap-height bm)
+  (bitmap-width bm)
+  (pixel-ref bm 2 2)
+  (pixel-set! bm 2 2 1)
+  (pixel-ref bm 2 2)
+]
+
+@;{============================================================================}
+@section[#:tag "bitmap:types"]{Types and Predicates}
+
+This module only provides a single @italic{abstract} type, @racket[bitmap] that
+is actually defined in terms of a 2-dimensional @racket[Mutable-Array] of
+@racket[Integer] pixels. These individual integers, representing the
+@racket[color] of the pixel, are addressable but not promoted as a type in
+themselves.
 
 @defproc[#:kind "predicate"
          (bitmap? [a any]) Boolean]{
-Returns a true if the argument is a bitmap.
+Returns @racket[#t] if the argument is a bitmap.
 }
 
-@;{==================================================================================================}
+@;{============================================================================}
 @section[#:tag "bitmap:construct"]{Construction}
 
 @defproc[#:kind "constructor"
          (make-bitmap
-           [width exact-positive-integer?]
-           [height exact-positive-integer?])
+           [height exact-positive-integer?]
+           [width exact-positive-integer?])
          bitmap?]{
-Returns a bitmap.
-Analogous to @racket[make-array], the bitmaps returned by @racket[make-bitmap]
-are mutable 2-dimensional arrays.
+Returns a new @racket[bitmap] with the given @racket[height] and @racket[width],
+with every pixel set to zero.
+}
+
+@;{============================================================================}
+@section[#:tag "bitmap:access"]{Accessors}
+
+@defproc[(bitmap-height
+           [bm bitmap?])
+         exact-positive-integer?]{
+Returns the height (number of rows) of the provided @racket[bitmap].
+}
+
+@defproc[(bitmap-width
+           [bm bitmap?])
+         exact-positive-integer?]{
+Returns the width (number of columns) of the provided @racket[bitmap].
+}
+
+@defproc[(bitmap-print
+           [bm bitmap?])
+         void?]{
+Prints the current @racket[bitmap].
+}
+
+@;{============================================================================}
+@section[#:tag "bitmap:pixels"]{Pixel Operations}
+
+@defproc[(pixel-ref
+           [bm bitmap?]
+           [x (and/c exact-nonnegative-integer? (</c (bitmap-width bm)))]
+           [y (and/c exact-nonnegative-integer? (</c (bitmap-height bm)))])
+         integer?]{
+Retrieve the color of the @racket[pixel] at the given @racket[x] and @racket[y]
+coordinates.
+}
+
+@defproc[(pixel-set!
+           [bm bitmap?]
+           [x (and/c exact-nonnegative-integer? (</c (bitmap-width bm)))]
+           [y (and/c exact-nonnegative-integer? (</c (bitmap-height bm)))]
+           [color integer?])
+         void?]{
+Set the color of the @racket[pixel] at the given @racket[x] and @racket[y]
+coordinates.
+}
+
+@;{============================================================================}
+@section[#:tag "bitmap:transforms"]{Transformations}
+
+@defproc[(bitmap-fill!
+          [bm bitmap?]
+          [x (and/c exact-nonnegative-integer? (</c (bitmap-width bm)))]
+          [y (and/c exact-nonnegative-integer? (</c (bitmap-height bm)))]
+          [color integer?])
+        void?]{
+A flood-fill operation that will replace the color of the pixel at the given
+coordinates with the specified @racket[color] and any adjacent pixels of the
+same color until all have been replaced.
+
+@examples[ #:eval bitmap-eval
+  (define bm (make-bitmap 7 8))
+  (pixel-set! bm 0 3 1)
+  (pixel-set! bm 1 3 1)
+  (pixel-set! bm 2 3 1)
+  (pixel-set! bm 3 3 1)
+  (pixel-set! bm 3 0 1)
+  (pixel-set! bm 3 1 1)
+  (pixel-set! bm 3 2 1)
+  (bitmap-print bm)
+  (bitmap-fill! bm 2 2 9)
+  (bitmap-print bm)
+]
+
 }
