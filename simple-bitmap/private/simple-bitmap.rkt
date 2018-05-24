@@ -2,7 +2,7 @@
 ;; This implements a very simple bitmap as a test for flood-fill
 ;; ~ Simon Johnston 2018.
 ;;
-(module bitmap racket
+(module simple-bitmap racket
 
   (provide
     (contract-out
