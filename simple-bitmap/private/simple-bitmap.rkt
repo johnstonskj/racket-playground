@@ -25,7 +25,7 @@
       ; a simple flood fill algorithm
       [bitmap-fill! (->i ([bm bitmap?]
                           [x (bm) (and/c exact-nonnegative-integer? (</c (bitmap-width bm)))]
-                          [y (bm) (and/c exact-nonnegative-integer? (</c (bitmap-width bm)))]
+                          [y (bm) (and/c exact-nonnegative-integer? (</c (bitmap-height bm)))]
                           [color integer?])
                          [result void?])]
 
@@ -62,13 +62,16 @@
     (vector-ref (array-shape bm) 1))
 
   (define (bitmap-print bm)
-    (display bm))
+    (for ([row (range (bitmap-height bm))])
+         (for ([col (range (bitmap-width bm))])
+              (display (pixel-ref bm row col)))
+         (displayln "")))
 
   (define (pixel-ref bm x y)
-    (array-ref bm (vector y x)))
+    (array-ref bm (vector x y)))
 
   (define (pixel-set! bm x y color)
-    (array-set! bm (vector y x) color))
+    (array-set! bm (vector x y) color))
 
   (define (bitmap-fill! bm x y color)
     (bitmap-filler bm x y color (pixel-ref bm x y)))
