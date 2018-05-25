@@ -8,7 +8,7 @@
                      math/array))
 
 @(define bitmap-eval (make-base-eval
-                        '(require "private/simple-bitmap.rkt")
+                        '(require racket/list "private/simple-bitmap.rkt")
                         ))
 
 @title[#:tag "example" #:version "0.1"]{simple-bitmap}
@@ -112,13 +112,10 @@ same color until all have been replaced.
 
 @examples[ #:eval bitmap-eval
   (define bm (make-bitmap 7 8))
-  (pixel-set! bm 0 3 1)
-  (pixel-set! bm 1 3 1)
-  (pixel-set! bm 2 3 1)
-  (pixel-set! bm 3 3 1)
-  (pixel-set! bm 3 0 1)
-  (pixel-set! bm 3 1 1)
-  (pixel-set! bm 3 2 1)
+  (for ([row (range 4)])
+       (pixel-set! bm row 3 1))
+  (for ([col (range 4)])
+       (pixel-set! bm 3 col 1))
   (bitmap-print bm)
   (bitmap-fill! bm 2 2 9)
   (bitmap-print bm)
