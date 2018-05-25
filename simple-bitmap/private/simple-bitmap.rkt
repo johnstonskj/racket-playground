@@ -43,11 +43,11 @@
                        [result void?])]
     ))
 
-;; ---------- Requirements
+  ;; ---------- Requirements
 
   (require math/array)
 
-;; ---------- Implementation
+  ;; ---------- Implementation
 
   (define (bitmap? a)
     (and (mutable-array? a) (= (array-dims a) 2)))
@@ -76,7 +76,7 @@
   (define (bitmap-fill! bm x y color)
     (bitmap-filler bm x y color (pixel-ref bm x y)))
 
-;; ---------- Internal procedures
+  ;; ---------- Internal procedures
 
   (define (bitmap-filler bm x y fill-color replace-color)
     (when (equal? (pixel-ref bm x y) replace-color)
