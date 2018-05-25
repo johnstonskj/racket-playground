@@ -12,12 +12,15 @@
                         ))
 
 @title[#:tag "example" #:version "0.1"]{simple-bitmap}
-@author{Simon Johnston}
+@author[(author+email "Simon Johnston" "johnstonskj@gmail.com")]
 
 @defmodule[simple-bitmap #:use-sources ("private/simple-bitmap.rkt")]
 
 A Sample package and module implementing a basic data structure and an example
-procedure.
+procedure. The source is included in the @racket[racket-playground] repository on
+@hyperlink[
+  "https://github.com/johnstonskj/racket-playground/tree/master/simple-bitmap"
+  "GitHub"].
 
 @examples[ #:eval bitmap-eval
   (define bm (make-bitmap 16 8))
