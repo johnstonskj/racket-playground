@@ -47,20 +47,41 @@
     (check-exn exn:fail:contract?
       (λ () (pixel-ref (make-bitmap 2 4) -1 0)))
     (check-exn exn:fail:contract?
-      (λ () (pixel-ref (make-bitmap 2 4) 3 0)))
+      (λ () (pixel-ref (make-bitmap 2 4) 0 3)))
     (check-exn exn:fail:contract?
-      (λ () (pixel-ref (make-bitmap 2 4) 0 -1)))
+      (λ () (pixel-ref (make-bitmap 2 4) -1 0)))
     (check-exn exn:fail:contract?
-      (λ () (pixel-ref (make-bitmap 2 4) 0 5)))
+      (λ () (pixel-ref (make-bitmap 2 4) 5 0)))
     (check-eq? 0 (pixel-ref (make-bitmap 2 4) 0 0)))
 
   (test-case
     "pixel-set!"
-    (check-true #t))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! void 0 0 1)))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! (make-bitmap 2 4) -1 0 1)))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! (make-bitmap 2 4) 0 3 1)))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! (make-bitmap 2 4) -1 0 1)))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! (make-bitmap 2 4) 5 0 1)))
+    (check-exn exn:fail:contract?
+      (λ () (pixel-set! (make-bitmap 2 4) 5 0 "color")))
+    (check-eq? 9 (let ([bm (make-bitmap 2 4)])
+                       (pixel-set! bm 1 1 9)
+                       (pixel-ref bm 1 1))))
 
   (test-case
     "bitmap-fill!"
-    (check-true #t))
+    (let ([bm (make-bitmap 7 7)])
+      (for ([row (range 4)])
+           (for ([col (range 4)])
+                (pixel-set! bm row col 1)))
+      (bitmap-fill! bm 2 2 9)
+      (for ([row (range 4)])
+           (for ([col (range 4)])
+                (check-eq? 9 (pixel-ref bm row col))))))
 
   ;; ---------- Internal procedures
 

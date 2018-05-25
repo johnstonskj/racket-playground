@@ -52,14 +52,14 @@
   (define (bitmap? a)
     (and (mutable-array? a) (= (array-dims a) 2)))
 
-  (define (make-bitmap h w)
-    (array->mutable-array (make-array (vector h w) 0)))
-
-  (define (bitmap-height bm)
-    (vector-ref (array-shape bm) 0))
+  (define (make-bitmap height width)
+    (array->mutable-array (make-array (vector height width) 0)))
 
   (define (bitmap-width bm)
     (vector-ref (array-shape bm) 1))
+
+  (define (bitmap-height bm)
+    (vector-ref (array-shape bm) 0))
 
   (define (bitmap-print bm)
     (for ([row (range (bitmap-height bm))])
