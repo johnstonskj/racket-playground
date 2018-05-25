@@ -74,6 +74,8 @@
 
   (test-case
     "bitmap-fill!"
+    (check-exn exn:fail:contract?
+      (λ () (bitmap-fill! (make-bitmap 2 4) 1 1 "color")))
     (let ([bm (make-bitmap 7 7)])
       (for ([row (range 4)])
            (for ([col (range 4)])
