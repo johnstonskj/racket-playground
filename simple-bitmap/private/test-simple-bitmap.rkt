@@ -6,6 +6,7 @@
 
   (require rackunit
            math/array
+           ; Package under test
            "simple-bitmap.rkt")
 
   ;; ---------- Test Cases: make-bitmap
@@ -20,6 +21,13 @@
       (λ () (make-bitmap 2 0)))
     (check-exn exn:fail:contract?
       (λ () (make-bitmap 2 -1))))
+
+  (test-case
+    "make-bitmap success"
+    (let ([bm (make-bitmap 2 4)])
+         (check-true (and (mutable-array? bm) (= (array-dims bm) 2)))
+         (check-eq? 2 (vector-ref (array-shape bm) 0))
+         (check-eq? 4 (vector-ref (array-shape bm) 1))))
 
   (test-case
     "bitmap? values"
@@ -74,15 +82,21 @@
 
   (test-case
     "bitmap-fill!"
+    (check-exn exn:fail:contract?
+      (λ () (bitmap-fill! (make-bitmap 2 4) 1 1 "color")))
     (let ([bm (make-bitmap 7 7)])
+      ; create a walled-off corner
       (for ([row (range 4)])
-           (for ([col (range 4)])
-                (pixel-set! bm row col 1)))
+           (pixel-set! bm row 3 1))
+      (for ([col (range 4)])
+           (pixel-set! bm 3 col 1))
+      ; flood-fill within the corner
       (bitmap-fill! bm 2 2 9)
-      (for ([row (range 4)])
-           (for ([col (range 4)])
-                (check-eq? 9 (pixel-ref bm row col))))))
-
-  ;; ---------- Internal procedures
+      ; ensure all the correct pixels are now set
+      (for ([row (range 3)])
+           (for ([col (range 3)])
+                (check-eq? 9 (pixel-ref bm row col))))
+      (check-eq? 1 (pixel-ref bm 2 3))
+      (check-eq? 0 (pixel-ref bm 2 4))))
 
 )
