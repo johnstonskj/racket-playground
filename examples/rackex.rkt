@@ -4,6 +4,8 @@
 
   (provide document-class & textit)
 
+  (define current-document (make-parameter '()))
+  
   (define (document-class class-name) (display ""))
 
   (define (& t . tt) (display t) (display (apply string-append tt)))

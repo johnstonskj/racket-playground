@@ -121,7 +121,10 @@
   (define (token-reset ts start state1)
     (push-back ts)
     (let ([ppos (tokenizer-pos ts)])
-      (yield (list state1 (substring (tokenizer-str ts) start ppos)))
+      (yield (list state1
+                   (substring (tokenizer-str ts) start ppos)
+                   (tokenizer-line ts)
+                   start))
       ppos))
 
   ;; ---------- Internal procedures: reader
@@ -137,6 +140,14 @@
         (let ([c (string-ref (tokenizer-str ts) (tokenizer-pos ts))])
              ; TODO: set line/char reference
              (set-tokenizer-pos! ts (+ (tokenizer-pos ts) 1))
+             (cond
+               [(eq? c #\newline)
+                (set-tokenizer-line! ts (+ (tokenizer-line ts) 1))
+                (set-tokenizer-char! ts -1)]
+               [(eq? c #\return)
+                (set-tokenizer-char! ts -1)]
+               [else
+                (set-tokenizer-char! ts (+ (tokenizer-char ts) 1))])
              c)))
 
   (define (peek-ahead ts [ahead-chars 0])
@@ -153,6 +164,6 @@
 ;      (for/list ([t (in-producer (tokenize ts) eof?)])
 ;        (displayln (format "token: ~s" t))))
 
-    (parse-string "hi  {{#worlds}}{{world}}{{/worlds}} {{!a comment}} ")
+    (parse-string "hi  {{#worlds}}\n{{world}}{{/worlds}} {{!a comment}} ")
   )
 )
