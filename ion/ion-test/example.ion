@@ -1,0 +1,20 @@
+/* Ion supports comments. */
+// Here is a struct, which is similar to a JSON object.
+{
+  // Field names don't always have to be quoted.
+  name: "fido",
+
+  // This is an integer with a user annotation of 'years'.
+  age: years::4,
+
+  // This is a timestamp with day precision.
+  birthday: 2012-03-01T,
+
+  // Here is a list, which is like a JSON array.
+  toys: [
+    // These are symbol values, which are like strings,
+    // but get encoded as integers in binary.
+    ball,
+    rope
+  ],
+}
