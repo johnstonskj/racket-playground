@@ -12,7 +12,7 @@
   (contract-out
 
     [load-data-set
-      (->* (string? symbol?) ((listof string?) (listof string?)) data-set/c)]
+      (-> string? symbol? (non-empty-listof string?) (non-empty-listof string?) data-set/c)]
 
     [data-set/c
       (-> any/c boolean?)]
@@ -24,10 +24,16 @@
       (-> data-set/c (listof symbol?))]
 
     [partition-count
-      (-> data-set/c positive-integer?)]
+      (-> data-set/c exact-nonnegative-integer?)]
 
     [partition
-      (-> data-set/c positive-integer? (vectorof vector?))]
+      (-> data-set/c exact-nonnegative-integer? (vectorof vector?))]
+
+    [feature-vector
+      (-> data-set/c exact-nonnegative-integer? string? vector?)]
+
+    [feature-statistics
+      (-> data-set/c exact-nonnegative-integer? string? vector?)]
 
     [partition-equally
       (-> data-set/c exact-positive-integer? (listof string?))]
@@ -48,11 +54,14 @@
 
 ;; ---------- Implementation
 
-(define (load-data-set name format [feature-names '()] [classifier-names '()])
-  (cond
-    [(eq? format 'json) (load-json-data name)]
-    [else (raise-argument-error 'load-data-set "'json" 1 name format feature-names classifier-names)]
-    ))
+(define (load-data-set name format feature-names classifier-names)
+  (let* ([feature-set (list->set feature-names)]
+         [classifier-set (list->set classifier-names)]
+         [all (set-union feature-set classifier-set)])
+    (cond
+      [(eq? format 'json) (load-json-data name all feature-names classifier-names)]
+      [else (raise-argument-error 'load-data-set "'json" 1 name format feature-names classifier-names)]
+      )))
 
 (define (data-set/c a)
   (data-set? a))
@@ -69,12 +78,24 @@
 (define (partition ds index)
   (data-set-partitions ds)) ; TODO: vector of vectors
 
+(define (feature-vector ds partition feature-name)
+  (when (>= partition (data-set-partition-count ds))
+    (raise-argument-error 'feature-vector (format "< ~s" (data-set-partition-count ds)) 1 data-set partition feature-name))
+  (when (not (hash-has-key? (data-set-name-index ds) feature-name))
+    (raise-argument-error 'feature-vector (format "one of: ~s" (hash-keys (data-set-name-index ds))) 2 data-set partition feature-name))
+  (let ([feature-index (hash-ref (data-set-name-index ds) feature-name)]
+        [partition (data-set-partitions ds)])
+    (vector-ref partition feature-index)))
+
+(define (feature-statistics ds partition feature-name)
+  (raise-not-implemented))
+
 ;; ---------- Implementation (Partitioning)
 
-(define (partition-equally ds k [entropy-classifiers (list)])
-  (raise-not-implemented ))
+(define (partition-equally ds k [entropy-classifiers '()])
+  (raise-not-implemented))
 
-(define (partition-for-test ds test-percent [entropy-classifiers (list)])
+(define (partition-for-test ds test-percent [entropy-classifiers '()])
   (raise-not-implemented))
 
 ;; ---------- Implementation (Feature Transformation)
@@ -89,6 +110,7 @@
 ;; ---------- Internal types
 
 (struct data-set (
+  name-index
   features
   classifiers
   statistics
@@ -97,18 +119,23 @@
 
 ;; ---------- Internal procedures
 
-(define (load-json-data file-name)
+(define (load-json-data file-name all-names feature-names classifier-names)
   (let* ([file (open-input-file file-name)]
          [data (read-json file)]
          [rows (length data)]
-         [features (if (> rows 0)(hash-keys (list-ref data 0))'())]
-         [partition (make-vector (length features))])
-        (for ([i (length features)])
+         [all-names (set->list all-names)]
+         [partition (make-vector (length all-names))])
+        (for ([i (length all-names)])
           (vector-set! partition i (make-vector rows)))
         (for ([row rows])
           (let ([rowdata (list-ref data row)])
-            (for ([i (length features)])
-              (let ([feature (list-ref features i)]
+            (for ([i (length all-names)])
+              (let ([feature (list-ref all-names i)]
                     [column (vector-ref partition i)])
-                (vector-set! column row (hash-ref rowdata feature))))))
-        (data-set features '() '() 1 partition)))
+                (vector-set! column row (hash-ref rowdata (string->symbol feature)))))))
+        (data-set (make-hash (for/list ([i (length all-names)]) (cons (list-ref all-names i) i)))
+                  feature-names
+                  classifier-names
+                  '() ; statistics.
+                  1 ; for now.
+                  partition)))
