@@ -12,6 +12,7 @@
 
 (displayln (format "n: ~s" (vector-length data)))
 (displayln (format "μ: ~s" (μ data-stats)))
+(displayln (format "m: ~s" (median data-stats))) ; returning 29.0, expecting 28.5
 (displayln (format "V: ~s" (Var data-stats)))
 (displayln (format "σ: ~s" (σ data-stats)))
 (newline)
