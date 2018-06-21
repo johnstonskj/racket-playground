@@ -14,13 +14,10 @@
   (contract-out
 
     [classify
-      (-> hash? data-set/c exact-positive-integer?)]
+      (-> hash? data-set/c exact-positive-integer? list?)]
 
     [cross-train
-      (-> data-set/c exact-positive-integer? mutable-array?)]
-
-    [make-confusion-matrix
-      (-> (non-empty-listof string?) mutable-array?)]))
+      (-> data-set/c exact-positive-integer? mutable-array?)]))
 
 ;; ---------- Requirements
 
@@ -30,11 +27,18 @@
 
 ;; ---------- Implementation
 
-; returns ?
 (define (classify data-item data-set k)
+  (reduce
+    (take
+      (sort
+        (for/list ([index (data-count data-set)])
+          (classify-distance data-item data-set 0 index))
+        #:key first <)
+      k)))
+
+(define (partition-and-classify data-set partition-pc k)
   (raise-not-implemented))
 
-; returns confusion matrix
 (define (cross-train partitioned-data-set k)
   (raise-not-implemented))
 
@@ -46,3 +50,27 @@
 
 (define (record-result C true-ω predicted-ω)
   (array-set! C (vector true-ω predicted-ω) (+ (array-ref C true-ω predicted-ω) 1)))
+
+(define (classify-distance sample data-set partition-index value-index)
+  (list
+    (sqrt
+      (apply +
+        (for/list ([feature (features data-set)])
+          (let ([fvector (feature-vector data-set partition-index feature)])
+            (expt (- (hash-ref sample feature) (vector-ref fvector value-index)) 2)))))
+    value-index
+    (for/list ([classifier (classifiers data-set)])
+      (let ([cvector (feature-vector data-set partition-index classifier)])
+        (vector-ref cvector value-index)))))
+
+(define (reduce results)
+  (second
+    (first
+      (sort
+        (hash-map
+          (foldl (lambda (e ht)
+                 (hash-update ht (list-ref e 2) add1 (lambda () 0)))
+                 (hash)
+                 results)
+          (lambda (k v) (list v k)))
+      #:key first >))))

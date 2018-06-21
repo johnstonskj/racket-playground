@@ -18,12 +18,15 @@
       (-> any/c boolean?)]
 
     [features
-      (-> data-set/c (listof symbol?))]
+      (-> data-set/c (listof string?))]
 
     [classifiers
-      (-> data-set/c (listof symbol?))]
+      (-> data-set/c (listof string?))]
 
     [partition-count
+      (-> data-set/c exact-nonnegative-integer?)]
+
+    [data-count
       (-> data-set/c exact-nonnegative-integer?)]
 
     [partition
@@ -75,6 +78,9 @@
 (define (partition-count ds)
   (data-set-partition-count ds))
 
+(define (data-count ds)
+  (data-set-data-count ds))
+
 (define (partition ds index)
   (data-set-partitions ds)) ; TODO: vector of vectors
 
@@ -114,6 +120,7 @@
   features
   classifiers
   statistics
+  data-count
   partition-count
   partitions))
 
@@ -137,5 +144,6 @@
                   feature-names
                   classifier-names
                   '() ; statistics.
+                  rows
                   1 ; for now.
                   partition)))
