@@ -26,6 +26,9 @@
     [partition-count
       (-> data-set/c positive-integer?)]
 
+    [partition
+      (-> data-set/c positive-integer? (vectorof vector?))]
+
     [partition-equally
       (-> data-set/c exact-positive-integer? (listof string?))]
 
@@ -63,6 +66,9 @@
 (define (partition-count ds)
   (data-set-partition-count ds))
 
+(define (partition ds index)
+  (data-set-partitions ds)) ; TODO: vector of vectors
+
 ;; ---------- Implementation (Partitioning)
 
 (define (partition-equally ds k [entropy-classifiers (list)])
@@ -95,7 +101,7 @@
   (let* ([file (open-input-file file-name)]
          [data (read-json file)]
          [rows (length data)]
-         [features (if (> rows 0)(hash-keys (list-ref data 0))(list))]
+         [features (if (> rows 0)(hash-keys (list-ref data 0))'())]
          [partition (make-vector (length features))])
         (for ([i (length features)])
           (vector-set! partition i (make-vector rows)))
