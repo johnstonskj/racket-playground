@@ -12,22 +12,25 @@
   (contract-out
 
     [load-data-set
-      (-> string? symbol? string? data-set/c)]
+      (->* (string? symbol?) ((listof string?) (listof string?)) data-set/c)]
 
     [data-set/c
       (-> any/c boolean?)]
 
     [features
-      (-> data-set/c vector?)]
+      (-> data-set/c (listof symbol?))]
 
     [classifiers
-      (-> data-set/c vector?)]
+      (-> data-set/c (listof symbol?))]
+
+    [partition-count
+      (-> data-set/c positive-integer?)]
 
     [partition-equally
       (-> data-set/c exact-positive-integer? (listof string?))]
 
     [partition-for-test
-      (-> data-set/c (real-in 0.0 99.0) (listof string?))]
+      (-> data-set/c (real-in 1.0 99.0) (listof string?))]
 
     [standardize
       (-> data-set/c (non-empty-listof string?) data-set/c)]
@@ -38,14 +41,14 @@
 
 ;; ---------- Requirements
 
-(require "notimplemented.rkt")
+(require "notimplemented.rkt" json)
 
 ;; ---------- Implementation
 
-(define (load-data-set name format row-name)
+(define (load-data-set name format [feature-names '()] [classifier-names '()])
   (cond
-    [(eq? format 'json) (load-json-data name row-name)]
-    [else (raise-argument-error 'load-data-set "'json" 1 name format row-name)]
+    [(eq? format 'json) (load-json-data name)]
+    [else (raise-argument-error 'load-data-set "'json" 1 name format feature-names classifier-names)]
     ))
 
 (define (data-set/c a)
@@ -57,12 +60,15 @@
 (define (classifiers ds)
   (data-set-classifiers ds))
 
+(define (partition-count ds)
+  (data-set-partition-count ds))
+
 ;; ---------- Implementation (Partitioning)
 
 (define (partition-equally ds k [entropy-classifiers (list)])
   (raise-not-implemented ))
 
-(define (partition-for-test ds pc [entropy-classifiers (list)])
+(define (partition-for-test ds test-percent [entropy-classifiers (list)])
   (raise-not-implemented))
 
 ;; ---------- Implementation (Feature Transformation)
@@ -80,9 +86,23 @@
   features
   classifiers
   statistics
-  data-partitions))
+  partition-count
+  partitions))
 
 ;; ---------- Internal procedures
 
-(define (load-json-data file-name row-name)
-  (raise-not-implemented))
+(define (load-json-data file-name)
+  (let* ([file (open-input-file file-name)]
+         [data (read-json file)]
+         [rows (length data)]
+         [features (if (> rows 0)(hash-keys (list-ref data 0))(list))]
+         [partition (make-vector (length features))])
+        (for ([i (length features)])
+          (vector-set! partition i (make-vector rows)))
+        (for ([row rows])
+          (let ([rowdata (list-ref data row)])
+            (for ([i (length features)])
+              (let ([feature (list-ref features i)]
+                    [column (vector-ref partition i)])
+                (vector-set! column row (hash-ref rowdata feature))))))
+        (data-set features '() '() 1 partition)))
