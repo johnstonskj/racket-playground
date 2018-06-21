@@ -1,16 +1,15 @@
 #lang racket
+;;
+;; Implements a simple macro for raising a correctly formatted error reporting
+;; the lack of implementation for a given procedure. This is significantly
+;; better than returning dummy results while developing modules.
+;;
+;; ~ Simon Johnston 2018.
+;;
 
 (provide raise-not-implemented)
 
-(define-struct (exn:fail:not-implemented
-                exn:fail)
-  (a-srcloc)
-  #:property prop:exn:srclocs
-  (lambda (a-struct)
-    (match a-struct
-      [(struct exn:fail:not-implemented
-         (msg marks a-srcloc))
-       (list a-srcloc)])))
+;; ---------- Implementation
 
 (define-syntax (raise-not-implemented stx)
   (syntax-case stx ()
@@ -24,3 +23,15 @@
                           '#,(syntax-column #'expr)
                           '#,(syntax-position #'expr)
                           '#,(syntax-span #'expr)))))]))
+
+;; ---------- Internal types
+
+(define-struct (exn:fail:not-implemented
+                exn:fail)
+  (a-srcloc)
+  #:property prop:exn:srclocs
+  (lambda (a-struct)
+    (match a-struct
+      [(struct exn:fail:not-implemented
+         (msg marks a-srcloc))
+       (list a-srcloc)])))
