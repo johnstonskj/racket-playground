@@ -1,22 +1,20 @@
 #lang racket
 
-(struct data-set (
+(provide
+  load-data-set
   features
   classifiers
-  statistics
-  partitioned-data))
+  partition-equally
+  partition-for-test)
 
-(struct feature-stat (
-  min
-  max
-  count
-  total))
+;; ---------- Requirements
+
+(require "notimplemented.rkt")
+
+;; ---------- Implementation
 
 (define (load-data-set name format row-name)
   (data-set #f #f #f #f))
-
-(define (load-json-data file-name row-name)
-  'null)
 
 (define (features ds)
   (data-set-features ds))
@@ -24,8 +22,21 @@
 (define (classifiers ds)
   (data-set-classifiers ds))
 
-(define (partition-equally ds k entropy-features)
-  'null)
+(define (partition-equally ds k [entropy-classifiers (list)])
+  (raise-not-implemented ))
 
-(define (partition-for-test ds pc entropy-features)
-  'null)
+(define (partition-for-test ds pc [entropy-classifiers (list)])
+  (raise-not-implemented))
+
+;; ---------- Internal types
+
+(struct data-set (
+  features
+  classifiers
+  statistics
+  data-partitions))
+
+;; ---------- Internal procedures
+
+(define (load-json-data file-name row-name)
+  (raise-not-implemented))
