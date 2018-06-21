@@ -42,14 +42,19 @@
       (-> data-set/c exact-positive-integer? (listof string?))]
 
     [partition-for-test
-      (-> data-set/c (real-in 1.0 99.0) (listof string?))]
+      (-> data-set/c (real-in 1.0 50.0) (listof string?) data-set/c)]
 
     [standardize
       (-> data-set/c (non-empty-listof string?) data-set/c)]
 
     [fuzzify
-      (-> data-set/c (non-empty-listof string?) data-set/c)]))
+      (-> data-set/c (non-empty-listof string?) data-set/c)]
 
+    [write-snapshot
+      (-> data-set/c output-port? void?)]
+
+    [read-snapshot
+      (-> input-port? data-set/c)]))
 
 ;; ---------- Requirements
 
@@ -112,6 +117,22 @@
 
   (define (fuzzify data-set features)
     (raise-not-implemented))
+
+;; ---------- Implementation (Snapshots)
+
+(define (write-snapshot ds out)
+  (write `(,(data-set-name-index ds)
+           ,(data-set-features ds)
+           ,(data-set-classifiers ds)
+           ,(data-set-statistics ds)
+           ,(data-set-data-count ds)
+           ,(data-set-partition-count ds)
+           ,(data-set-partitions ds))
+          out))
+
+(define (read-snapshot in)
+  (let ([values (read in)])
+    (apply data-set values)))
 
 ;; ---------- Internal types
 

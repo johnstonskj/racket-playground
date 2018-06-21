@@ -16,8 +16,11 @@
     [classify
       (-> hash? data-set/c exact-positive-integer? list?)]
 
+    [partition-and-classify
+      (-> data-set/c (real-in 1.0 50.0) exact-positive-integer? list?)]
+
     [cross-train
-      (-> data-set/c exact-positive-integer? mutable-array?)]))
+      (-> data-set/c exact-positive-integer? array?)]))
 
 ;; ---------- Requirements
 
@@ -37,7 +40,8 @@
       k)))
 
 (define (partition-and-classify data-set partition-pc k)
-  (raise-not-implemented))
+  (let ([partitioned (partition-for-test data-set partition-pc)])
+    (raise-not-implemented)))
 
 (define (cross-train partitioned-data-set k)
   (raise-not-implemented))
@@ -47,9 +51,6 @@
        (array->mutable-array (make-array Ω Ω 0))))
 
 ;; ---------- Internal procedures
-
-(define (record-result C true-ω predicted-ω)
-  (array-set! C (vector true-ω predicted-ω) (+ (array-ref C true-ω predicted-ω) 1)))
 
 (define (classify-distance sample data-set partition-index value-index)
   (list
@@ -74,3 +75,6 @@
                  results)
           (lambda (k v) (list v k)))
       #:key first >))))
+
+(define (record-result C true-ω predicted-ω)
+  (array-set! C (vector true-ω predicted-ω) (+ (array-ref C true-ω predicted-ω) 1)))
