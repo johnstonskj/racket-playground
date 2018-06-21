@@ -48,7 +48,8 @@
 
 ;; ---------- Internal procedures
 
-(define (compute v st)
+(define/contract (compute v st)
+  (-> number? stats? stats?)
   (let ([n (+ (stats-n st) 1)])
        (if (eq? n 1)
            (stats n v 0.0)
