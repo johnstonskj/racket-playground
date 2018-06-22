@@ -3,7 +3,6 @@
 ;; Some simple statistical functions over sequences. Uses a nice streaming
 ;; approach that doesn't require large sums (and therefore unstable
 ;; numerical performance).
-;;   See: https://www.johndcook.com/blog/standard_deviation/
 ;; ~ Simon Johnston 2018.
 ;;
 
@@ -37,6 +36,7 @@
 (define μ mean)
 
 (define (variance st)
+  ;;  https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
   (if (> (stats-n st) 1)
       (/ (stats-s st) (- (stats-n st) 1))
       0.0))
@@ -44,18 +44,26 @@
 (define Var variance)
 
 (define (standard-deviation st)
+  ;;  https://www.johndcook.com/blog/standard_deviation/
   (sqrt (variance st)))
 
 (define σ standard-deviation)
 
 (define (median st)
+  ;;  https://en.wikipedia.org/wiki/Median
   (if (even? (stats-n st))
       (/ (+ (- (heap-min (stats-hmax st))) (heap-min (stats-hmin st))) 2.0)
       (- (heap-min (stats-hmax st)))))
 
 ;; ---------- Internal types
 
-(struct stats (n m s hmin hmax))
+(struct stats (
+  n    ; number of values
+  m    ; calculated mean
+  s    ; calculated for variance
+  hmin ; min heap (median)
+  hmax ; max heap (median)
+  ))
 
 ;; ---------- Internal procedures
 
@@ -90,3 +98,11 @@
   (let ([min (heap-min h)])
        (heap-remove-min! h)
        min))
+
+;; Skewness
+;;  https://en.wikipedia.org/wiki/Skewness
+;;  https://www.johndcook.com/blog/skewness_kurtosis/
+;; Regression
+;;  https://www.johndcook.com/blog/running_regression/
+;; Kurtosis
+;;  https://en.wikipedia.org/wiki/Kurtosis
