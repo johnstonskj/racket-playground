@@ -30,13 +30,13 @@
       (-> data-set/c exact-nonnegative-integer?)]
 
     [partition
-      (-> data-set/c exact-nonnegative-integer? (vectorof vector?))]
+      (-> data-set/c (or/c exact-nonnegative-integer? symbol?) (vectorof vector?))]
 
     [feature-vector
-      (-> data-set/c exact-nonnegative-integer? string? vector?)]
+      (-> data-set/c (or/c exact-nonnegative-integer? symbol?) string? vector?)]
 
     [feature-statistics
-      (-> data-set/c exact-nonnegative-integer? string? vector?)]
+      (-> data-set/c (or/c exact-nonnegative-integer? symbol?) string? vector?)]
 
     [partition-equally
       (-> data-set/c exact-positive-integer? (listof string?))]
@@ -146,6 +146,14 @@
   partitions))
 
 ;; ---------- Internal procedures
+
+(define (partition-idx partition)
+  (cond
+    [(number? partition) partition]
+    [(eq? partition 'default) 0]
+    [(eq? partition 'training) 0]
+    [(eq? partition 'testing) 1]
+    [else -1]))
 
 (define (load-json-data file-name all-names feature-names classifier-names)
   (let* ([file (open-input-file file-name)]

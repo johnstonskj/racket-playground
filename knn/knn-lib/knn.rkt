@@ -40,7 +40,9 @@
       k)))
 
 (define (partition-and-classify data-set partition-pc k)
-  (let ([partitioned (partition-for-test data-set partition-pc)])
+  (let* ([partitioned (partition-for-test data-set partition-pc)]
+         [training (partition partitioned 0)]
+         [testing (partition partitioned 1)])
     (raise-not-implemented)))
 
 (define (cross-train partitioned-data-set k)
