@@ -1,8 +1,9 @@
 #lang racket
 ;;
-;; Some simple statistical functions over sequences. Uses a nice streaming
-;; approach that doesn't require large sums (and therefore unstable
-;; numerical performance).
+;; Some simple statistical functions over sequences. Thinking about performance.
+;; see https://docs.racket-lang.org/math/stats.html
+;; and file:///Applications/Racket%20v6.12/doc/reference/flonums.html
+;; and https://docs.racket-lang.org/guide/parallelism.html
 ;; ~ Simon Johnston 2018.
 ;;
 

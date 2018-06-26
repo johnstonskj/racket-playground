@@ -1,5 +1,6 @@
 *.rkt~
 *.rkt#*
 .#*.rkt
+compiled/
 
 jupyter/.ipynb_checkpoints/*
