@@ -22,5 +22,5 @@
 
 (module+ test
   (require rackunit rackunit/docs-complete)
-  ;; (check-docs '{{module}})
-  (test-case "dummy first test"))
+  ; only use for internal tests, use check- functions 
+  (check-true "dummy first test" #f))
